@@ -1,0 +1,61 @@
+XP Control Center - Validation Report
+=====================================
+Target: Battle for Wesnoth 1.18.x
+
+STATIC VALIDATION
+-----------------
+PASS - Lua source parses successfully with the available Lua parser (texlua loadfile).
+PASS - WML opening/closing tags are balanced and correctly nested in all .cfg files.
+PASS - Every custom [xcc_*] WML action has a matching Lua handler and no handler is orphaned.
+PASS - Exactly one [set_menu_item] is defined: XP Control Center.
+PASS - The dialog contains every required control and Save/Cancel buttons.
+PASS - Dialog sections are ordered ALLIES -> LEADER -> HEALERS -> ENEMY.
+PASS - Removed the unused xcc_runtime_initialized variable and checked local helpers for dead callers.
+PASS - No identifiers from older XPM/XCO/CXT implementations remain in executable code.
+
+XP CAP / MID-GAME SETTINGS
+--------------------------
+PASS - 300,000 randomized natural-XP/cap cases matched min(natural XP, cap).
+PASS - Disabled caps restore/use the stored natural max_experience value.
+PASS - Raising/lowering a cap uses the stored uncapped value instead of stacking caps.
+PASS - A subsequent advancement/AMLA replaces the stored natural value with the newly generated
+       uncapped max_experience before the selected cap is reapplied.
+PASS - Effective cap changes trigger the only combined map+recall query in the code.
+PASS - Rate-only changes do not trigger a cap scan.
+PASS - Normal recall, turns, and combat do not perform cap scans.
+
+COMBAT XP
+---------
+PASS - 300,000 randomized base-XP/rate cases matched floor(base XP * rate / 100).
+PASS - 100% takes the fast path and adds no bonus.
+PASS - Large XP remains simple: only the bonus is added; core Wesnoth handles advancement.
+
+SETTINGS WINDOW / PERSISTENCE
+-----------------------------
+PASS - One right-click menu item invokes one custom GUI2 window.
+PASS - Save returns all settings through wesnoth.sync.evaluate_single; Cancel changes nothing.
+PASS - Runtime settings are separate from startup defaults and are not overwritten once present.
+PASS - 100,000 randomized startup/runtime persistence cases matched the expected behavior.
+
+HEALER CACHE / SAVE LOAD
+------------------------
+PASS - Normal healing turns contain no whole-map healer query.
+PASS - Placement and post-advance update healer cache membership incrementally.
+PASS - Death removes healer IDs immediately.
+PASS - A transient healer-only map query exists only in rebuild_healer_cache().
+PASS - preload rebuilds only transient healer state after save/scenario load; it does not recalculate caps.
+
+PERFORMANCE AUDIT
+-----------------
+PASS - wesnoth.units.find {} appears exactly once, in the manual cap-change function.
+PASS - wesnoth.units.find_on_map appears exactly once, in the healer-cache rebuild function.
+PASS - wesnoth.units.find_on_recall is not called directly.
+PASS - No turn-time full-unit cap scan exists.
+PASS - No combat-time cap scan exists.
+
+LIMITATION OF THIS TEST ENVIRONMENT
+-----------------------------------
+The Battle for Wesnoth 1.18.8 executable is not installed in this environment,
+so the custom GUI cannot be opened in the actual engine here. The implementation
+was checked against the documented 1.18-era gui.show_dialog / set_menu_item APIs,
+Lua syntax, WML structure, handler wiring, and randomized state/math tests.
